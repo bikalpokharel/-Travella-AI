@@ -1,0 +1,283 @@
+text,intent
+hello,greet
+hi,greet
+namaste,greet
+good morning,greet
+good afternoon,greet
+good evening,greet
+how are you,greet
+what can you help me with,greet
+help,greet
+start,greet
+begin,greet
+plan 3 day trip for pokhara,itinerary_suggestion
+create itinerary for kathmandu,itinerary_suggestion
+suggest 5 day plan for nepal,itinerary_suggestion
+itinerary for 2 days in bhaktapur,itinerary_suggestion
+plan my trip to chitwan,itinerary_suggestion
+suggest places to visit in lumbini,itinerary_suggestion
+what should i do in nepal for 4 days,itinerary_suggestion
+recommend places for 1 week trip,itinerary_suggestion
+plan vacation in nepal,itinerary_suggestion
+suggest itinerary for family trip,itinerary_suggestion
+create travel plan for nepal,itinerary_suggestion
+recommend 3 day itinerary,itinerary_suggestion
+plan nepal trip,itinerary_suggestion
+suggest nepal itinerary,itinerary_suggestion
+create nepal travel plan,itinerary_suggestion
+recommend nepal places,itinerary_suggestion
+plan nepal vacation,itinerary_suggestion
+suggest nepal trip,itinerary_suggestion
+create nepal itinerary,itinerary_suggestion
+recommend nepal travel,itinerary_suggestion
+find hidden gems in pokhara,find_hidden
+secret places in kathmandu,find_hidden
+off the beaten path nepal,find_hidden
+hidden spots in bhaktapur,find_hidden
+local secrets in chitwan,find_hidden
+unknown places in lumbini,find_hidden
+less touristy places nepal,find_hidden
+local recommendations nepal,find_hidden
+authentic experiences nepal,find_hidden
+hidden treasures nepal,find_hidden
+secret nepal,find_hidden
+local nepal,find_hidden
+authentic nepal,find_hidden
+hidden nepal,find_hidden
+secret places nepal,find_hidden
+local spots nepal,find_hidden
+authentic spots nepal,find_hidden
+hidden spots nepal,find_hidden
+best food in pokhara,local_food
+traditional food kathmandu,local_food
+local cuisine nepal,local_food
+nepali food bhaktapur,local_food
+traditional dishes chitwan,local_food
+local restaurants lumbini,local_food
+street food nepal,local_food
+traditional nepal food,local_food
+local nepal cuisine,local_food
+nepali cuisine,local_food
+traditional nepal dishes,local_food
+local nepal food,local_food
+nepali dishes,local_food
+traditional food nepal,local_food
+local food nepal,local_food
+nepali cuisine nepal,local_food
+traditional dishes nepal,local_food
+local restaurants nepal,local_food
+book hotel in pokhara,book_hotel
+find accommodation kathmandu,book_hotel
+hotel booking nepal,book_hotel
+reserve hotel bhaktapur,book_hotel
+find place to stay chitwan,book_hotel
+accommodation lumbini,book_hotel
+hotel nepal,book_hotel
+accommodation nepal,book_hotel
+book accommodation nepal,book_hotel
+reserve hotel nepal,book_hotel
+find hotel nepal,book_hotel
+book place to stay nepal,book_hotel
+hotel booking,book_hotel
+accommodation booking,book_hotel
+book hotel,book_hotel
+find accommodation,book_hotel
+reserve hotel,book_hotel
+find place to stay,book_hotel
+book flight to nepal,book_flight
+find flights to kathmandu,book_flight
+airline tickets nepal,book_flight
+flight booking nepal,book_flight
+book air tickets nepal,book_flight
+find airfare to nepal,book_flight
+flight to nepal,book_flight
+air tickets nepal,book_flight
+book flight,book_flight
+find flights,book_flight
+airline tickets,book_flight
+flight booking,book_flight
+book air tickets,book_flight
+find airfare,book_flight
+air tickets,book_flight
+digital nomad nepal,digital_nomad
+remote work pokhara,digital_nomad
+coworking spaces kathmandu,digital_nomad
+work from nepal,digital_nomad
+remote work nepal,digital_nomad
+digital nomad pokhara,digital_nomad
+coworking nepal,digital_nomad
+work remotely nepal,digital_nomad
+digital nomad kathmandu,digital_nomad
+remote work kathmandu,digital_nomad
+coworking spaces nepal,digital_nomad
+work from pokhara,digital_nomad
+digital nomad,digital_nomad
+remote work,digital_nomad
+coworking spaces,digital_nomad
+work remotely,digital_nomad
+family friendly nepal,family_friendly
+kid friendly pokhara,family_friendly
+family activities kathmandu,family_friendly
+travel with kids nepal,family_friendly
+family vacation nepal,family_friendly
+kid activities nepal,family_friendly
+family nepal,family_friendly
+kids nepal,family_friendly
+family friendly pokhara,family_friendly
+kid friendly kathmandu,family_friendly
+family activities nepal,family_friendly
+travel with children nepal,family_friendly
+family vacation,family_friendly
+kid activities,family_friendly
+family friendly,family_friendly
+kids,family_friendly
+family activities,family_friendly
+travel with kids,family_friendly
+romantic nepal,couples
+honeymoon pokhara,couples
+couple activities kathmandu,couples
+romantic getaway nepal,couples
+honeymoon nepal,couples
+couple nepal,couples
+romantic pokhara,couples
+honeymoon kathmandu,couples
+couple activities nepal,couples
+romantic getaway,couples
+honeymoon,couples
+couple activities,couples
+romantic,couples
+couple,couples
+backpacker nepal,backpacker
+budget travel pokhara,backpacker
+cheap accommodation kathmandu,backpacker
+backpacking nepal,backpacker
+budget nepal,backpacker
+cheap nepal,backpacker
+backpacker pokhara,backpacker
+budget travel kathmandu,backpacker
+cheap accommodation nepal,backpacker
+backpacking,backpacker
+budget travel,backpacker
+cheap accommodation,backpacker
+backpacker,backpacker
+budget,backpacker
+cheap,backpacker
+nepal video content,video_recs
+travel reels about nepal,video_recs
+nepal videos,video_recs
+travel videos nepal,video_recs
+nepal content,video_recs
+video nepal,video_recs
+travel content nepal,video_recs
+nepal reels,video_recs
+travel videos,video_recs
+video content,video_recs
+travel content,video_recs
+video recs,video_recs
+visa info for nepal,visa_info
+how to extend visa in nepal,visa_info
+nepal visa requirements,visa_info
+visa application nepal,visa_info
+entry requirements nepal,visa_info
+how to get nepal visa,visa_info
+visa process for nepal,visa_info
+nepal entry visa,visa_info
+visa requirements for nepal,visa_info
+how to apply for nepal visa,visa_info
+nepal visa information,visa_info
+visa for nepal,visa_info
+visa info,visa_info
+visa requirements,visa_info
+visa application,visa_info
+entry requirements,visa_info
+how to get visa,visa_info
+visa process,visa_info
+entry visa,visa_info
+how to apply for visa,visa_info
+visa information,visa_info
+is solo travel safe at night in kathmandu,safety_tips
+safety tips for trekking near pokhara,safety_tips
+is nepal safe for tourists,safety_tips
+travel safety nepal,safety_tips
+safety concerns in nepal,safety_tips
+is nepal safe to visit,safety_tips
+safety advice for nepal,safety_tips
+travel safety tips nepal,safety_tips
+is it safe to travel in nepal,safety_tips
+safety guidelines for nepal,safety_tips
+nepal travel safety,safety_tips
+is nepal safe,safety_tips
+safety tips,safety_tips
+travel safety,safety_tips
+safety concerns,safety_tips
+is it safe,safety_tips
+safety advice,safety_tips
+travel safety tips,safety_tips
+safety guidelines,safety_tips
+best trekking operators near pokhara,adventure_providers
+licensed guides for annapurna trek,adventure_providers
+adventure companies nepal,adventure_providers
+trekking agencies in nepal,adventure_providers
+outdoor activities nepal,adventure_providers
+adventure tour operators nepal,adventure_providers
+trekking companies in nepal,adventure_providers
+adventure guides nepal,adventure_providers
+outdoor activity providers nepal,adventure_providers
+adventure tourism nepal,adventure_providers
+trekking in nepal,adventure_providers
+adventure nepal,adventure_providers
+trekking operators,adventure_providers
+licensed guides,adventure_providers
+adventure companies,adventure_providers
+trekking agencies,adventure_providers
+outdoor activities,adventure_providers
+adventure tour operators,adventure_providers
+trekking companies,adventure_providers
+adventure guides,adventure_providers
+outdoor activity providers,adventure_providers
+adventure tourism,adventure_providers
+trekking,adventure_providers
+adventure,adventure_providers
+festivals in nepal in november,festival_info
+when is tihar and what to expect,festival_info
+nepal festivals and events,festival_info
+cultural events in nepal,festival_info
+festival calendar nepal,festival_info
+nepal cultural festivals,festival_info
+festival dates in nepal,festival_info
+cultural events nepal,festival_info
+nepal festival calendar,festival_info
+festival information nepal,festival_info
+nepal festivals,festival_info
+cultural nepal,festival_info
+festivals,festival_info
+cultural events,festival_info
+festival calendar,festival_info
+cultural festivals,festival_info
+festival dates,festival_info
+festival information,festival_info
+cultural,festival_info
+business trip 2 days meeting near durbar marg,business_travel
+quiet hotel with meeting room in kathmandu,business_travel
+business travel nepal,business_travel
+corporate accommodation nepal,business_travel
+meeting venues in kathmandu,business_travel
+business hotels nepal,business_travel
+corporate travel nepal,business_travel
+business accommodation nepal,business_travel
+meeting facilities nepal,business_travel
+business travel services nepal,business_travel
+corporate nepal,business_travel
+business nepal,business_travel
+business trip,business_travel
+meeting room,business_travel
+business travel,business_travel
+corporate accommodation,business_travel
+meeting venues,business_travel
+business hotels,business_travel
+corporate travel,business_travel
+business accommodation,business_travel
+meeting facilities,business_travel
+business travel services,business_travel
+corporate,business_travel
+business,business_travel

@@ -1,0 +1,262 @@
+{
+  "kathmandu": {
+    "youtube_shorts": [
+      "https://youtube.com/shorts/CxQKqXqXqXQ",
+      "https://youtube.com/shorts/DyRyRyRyRyR",
+      "https://youtube.com/shorts/EzSzSzSzSzS",
+      "https://youtube.com/shorts/FtTtTtTtTtT",
+      "https://youtube.com/shorts/GuUuUuUuUuU"
+    ],
+    "youtube_videos": [
+      "https://youtube.com/watch?v=KathmanduCityGuide",
+      "https://youtube.com/watch?v=KathmanduFoodTour",
+      "https://youtube.com/watch?v=KathmanduTemples",
+      "https://youtube.com/watch?v=KathmanduHiddenGems",
+      "https://youtube.com/watch?v=KathmanduCulture"
+    ],
+    "instagram_reels": [
+      "https://www.instagram.com/reel/CxQKqXqXqXQ/",
+      "https://www.instagram.com/reel/DyRyRyRyRyR/",
+      "https://www.instagram.com/reel/EzSzSzSzSzS/",
+      "https://www.instagram.com/reel/FtTtTtTtTtT/",
+      "https://www.instagram.com/reel/GuUuUuUuUuU/"
+    ],
+    "tiktok": [
+      "https://www.tiktok.com/@nepaltravel/video/1234567890",
+      "https://www.tiktok.com/@kathmandulife/video/1234567891",
+      "https://www.tiktok.com/@nepalfoodie/video/1234567892",
+      "https://www.tiktok.com/@nepalculture/video/1234567893",
+      "https://www.tiktok.com/@nepaladventure/video/1234567894"
+    ],
+    "trending": [
+      "https://youtube.com/shorts/CxQKqXqXqXQ",
+      "https://www.instagram.com/reel/DyRyRyRyRyR/",
+      "https://www.tiktok.com/@nepaltravel/video/1234567890"
+    ],
+    "categories": {
+      "food": [
+        "https://youtube.com/shorts/FoodKathmandu1",
+        "https://www.instagram.com/reel/FoodKathmandu2/",
+        "https://www.tiktok.com/@nepalfoodie/video/FoodKathmandu3"
+      ],
+      "culture": [
+        "https://youtube.com/shorts/CultureKathmandu1",
+        "https://www.instagram.com/reel/CultureKathmandu2/",
+        "https://www.tiktok.com/@nepalculture/video/CultureKathmandu3"
+      ],
+      "adventure": [
+        "https://youtube.com/shorts/AdventureKathmandu1",
+        "https://www.instagram.com/reel/AdventureKathmandu2/",
+        "https://www.tiktok.com/@nepaladventure/video/AdventureKathmandu3"
+      ]
+    }
+  },
+  "pokhara": {
+    "youtube_shorts": [
+      "https://youtube.com/shorts/PokharaLake1",
+      "https://youtube.com/shorts/PokharaMountains2",
+      "https://youtube.com/shorts/PokharaAdventure3",
+      "https://youtube.com/shorts/PokharaSunrise4",
+      "https://youtube.com/shorts/PokharaCulture5"
+    ],
+    "youtube_videos": [
+      "https://youtube.com/watch?v=PokharaCompleteGuide",
+      "https://youtube.com/watch?v=PokharaParagliding",
+      "https://youtube.com/watch?v=PokharaLakeViews",
+      "https://youtube.com/watch?v=PokharaHiddenGems",
+      "https://youtube.com/watch?v=PokharaFoodTour"
+    ],
+    "instagram_reels": [
+      "https://www.instagram.com/reel/PokharaLake1/",
+      "https://www.instagram.com/reel/PokharaMountains2/",
+      "https://www.instagram.com/reel/PokharaAdventure3/",
+      "https://www.instagram.com/reel/PokharaSunrise4/",
+      "https://www.instagram.com/reel/PokharaCulture5/"
+    ],
+    "tiktok": [
+      "https://www.tiktok.com/@pokharalife/video/2345678901",
+      "https://www.tiktok.com/@nepaladventure/video/2345678902",
+      "https://www.tiktok.com/@nepalfoodie/video/2345678903",
+      "https://www.tiktok.com/@nepalculture/video/2345678904",
+      "https://www.tiktok.com/@nepaltravel/video/2345678905"
+    ],
+    "trending": [
+      "https://youtube.com/shorts/PokharaLake1",
+      "https://www.instagram.com/reel/PokharaMountains2/",
+      "https://www.tiktok.com/@pokharalife/video/2345678901"
+    ],
+    "categories": {
+      "adventure": [
+        "https://youtube.com/shorts/PokharaParagliding1",
+        "https://www.instagram.com/reel/PokharaZipLining2/",
+        "https://www.tiktok.com/@nepaladventure/video/PokharaTrekking3"
+      ],
+      "nature": [
+        "https://youtube.com/shorts/PokharaLakeViews1",
+        "https://www.instagram.com/reel/PokharaSunrise2/",
+        "https://www.tiktok.com/@nepaltravel/video/PokharaMountains3"
+      ],
+      "food": [
+        "https://youtube.com/shorts/PokharaTrout1",
+        "https://www.instagram.com/reel/PokharaCoffee2/",
+        "https://www.tiktok.com/@nepalfoodie/video/PokharaLocalFood3"
+      ]
+    }
+  },
+  "bhaktapur": {
+    "youtube_shorts": [
+      "https://youtube.com/shorts/BhaktapurDurbar1",
+      "https://youtube.com/shorts/BhaktapurPottery2",
+      "https://youtube.com/shorts/BhaktapurTemples3",
+      "https://youtube.com/shorts/BhaktapurCulture4",
+      "https://youtube.com/shorts/BhaktapurFood5"
+    ],
+    "youtube_videos": [
+      "https://youtube.com/watch?v=BhaktapurCompleteGuide",
+      "https://youtube.com/watch?v=BhaktapurPotteryMaking",
+      "https://youtube.com/watch?v=BhaktapurTemples",
+      "https://youtube.com/watch?v=BhaktapurCulture",
+      "https://youtube.com/watch?v=BhaktapurFoodTour"
+    ],
+    "instagram_reels": [
+      "https://www.instagram.com/reel/BhaktapurDurbar1/",
+      "https://www.instagram.com/reel/BhaktapurPottery2/",
+      "https://www.instagram.com/reel/BhaktapurTemples3/",
+      "https://www.instagram.com/reel/BhaktapurCulture4/",
+      "https://www.instagram.com/reel/BhaktapurFood5/"
+    ],
+    "tiktok": [
+      "https://www.tiktok.com/@bhaktapurlife/video/3456789012",
+      "https://www.tiktok.com/@nepalculture/video/3456789013",
+      "https://www.tiktok.com/@nepalfoodie/video/3456789014",
+      "https://www.tiktok.com/@nepaltravel/video/3456789015",
+      "https://www.tiktok.com/@nepaladventure/video/3456789016"
+    ],
+    "trending": [
+      "https://youtube.com/shorts/BhaktapurDurbar1",
+      "https://www.instagram.com/reel/BhaktapurPottery2/",
+      "https://www.tiktok.com/@bhaktapurlife/video/3456789012"
+    ],
+    "categories": {
+      "culture": [
+        "https://youtube.com/shorts/BhaktapurNewari1",
+        "https://www.instagram.com/reel/BhaktapurTraditions2/",
+        "https://www.tiktok.com/@nepalculture/video/BhaktapurFestivals3"
+      ],
+      "crafts": [
+        "https://youtube.com/shorts/BhaktapurPottery1",
+        "https://www.instagram.com/reel/BhaktapurWoodcarving2/",
+        "https://www.tiktok.com/@nepaltravel/video/BhaktapurCrafts3"
+      ],
+      "food": [
+        "https://youtube.com/shorts/BhaktapurJujuDhau1",
+        "https://www.instagram.com/reel/BhaktapurLocalFood2/",
+        "https://www.tiktok.com/@nepalfoodie/video/BhaktapurCuisine3"
+      ]
+    }
+  },
+  "chitwan": {
+    "youtube_shorts": [
+      "https://youtube.com/shorts/ChitwanWildlife1",
+      "https://youtube.com/shorts/ChitwanSafari2",
+      "https://youtube.com/shorts/ChitwanElephant3",
+      "https://youtube.com/shorts/ChitwanTharu4",
+      "https://youtube.com/shorts/ChitwanNature5"
+    ],
+    "youtube_videos": [
+      "https://youtube.com/watch?v=ChitwanCompleteGuide",
+      "https://youtube.com/watch?v=ChitwanWildlifeSafari",
+      "https://youtube.com/watch?v=ChitwanElephantRide",
+      "https://youtube.com/watch?v=ChitwanTharuCulture",
+      "https://youtube.com/watch?v=ChitwanNatureWalk"
+    ],
+    "instagram_reels": [
+      "https://www.instagram.com/reel/ChitwanWildlife1/",
+      "https://www.instagram.com/reel/ChitwanSafari2/",
+      "https://www.instagram.com/reel/ChitwanElephant3/",
+      "https://www.instagram.com/reel/ChitwanTharu4/",
+      "https://www.instagram.com/reel/ChitwanNature5/"
+    ],
+    "tiktok": [
+      "https://www.tiktok.com/@chitwanlife/video/4567890123",
+      "https://www.tiktok.com/@nepaladventure/video/4567890124",
+      "https://www.tiktok.com/@nepalculture/video/4567890125",
+      "https://www.tiktok.com/@nepaltravel/video/4567890126",
+      "https://www.tiktok.com/@nepalfoodie/video/4567890127"
+    ],
+    "trending": [
+      "https://youtube.com/shorts/ChitwanWildlife1",
+      "https://www.instagram.com/reel/ChitwanSafari2/",
+      "https://www.tiktok.com/@chitwanlife/video/4567890123"
+    ],
+    "categories": {
+      "wildlife": [
+        "https://youtube.com/shorts/ChitwanRhino1",
+        "https://www.instagram.com/reel/ChitwanTiger2/",
+        "https://www.tiktok.com/@nepaladventure/video/ChitwanBirds3"
+      ],
+      "culture": [
+        "https://youtube.com/shorts/ChitwanTharu1",
+        "https://www.instagram.com/reel/ChitwanDance2/",
+        "https://www.tiktok.com/@nepalculture/video/ChitwanTraditions3"
+      ],
+      "adventure": [
+        "https://youtube.com/shorts/ChitwanCanoe1",
+        "https://www.instagram.com/reel/ChitwanJungle2/",
+        "https://www.tiktok.com/@nepaladventure/video/ChitwanTrekking3"
+      ]
+    }
+  },
+  "lumbini": {
+    "youtube_shorts": [
+      "https://youtube.com/shorts/LumbiniBuddha1",
+      "https://youtube.com/shorts/LumbiniTemple2",
+      "https://youtube.com/shorts/LumbiniPeace3",
+      "https://youtube.com/shorts/LumbiniMonastery4",
+      "https://youtube.com/shorts/LumbiniMeditation5"
+    ],
+    "youtube_videos": [
+      "https://youtube.com/watch?v=LumbiniCompleteGuide",
+      "https://youtube.com/watch?v=LumbiniBuddhaBirthplace",
+      "https://youtube.com/watch?v=LumbiniTemples",
+      "https://youtube.com/watch?v=LumbiniMeditation",
+      "https://youtube.com/watch?v=LumbiniCulture"
+    ],
+    "instagram_reels": [
+      "https://www.instagram.com/reel/LumbiniBuddha1/",
+      "https://www.instagram.com/reel/LumbiniTemple2/",
+      "https://www.instagram.com/reel/LumbiniPeace3/",
+      "https://www.instagram.com/reel/LumbiniMonastery4/",
+      "https://www.instagram.com/reel/LumbiniMeditation5/"
+    ],
+    "tiktok": [
+      "https://www.tiktok.com/@lumbinilife/video/5678901234",
+      "https://www.tiktok.com/@nepalculture/video/5678901235",
+      "https://www.tiktok.com/@nepaltravel/video/5678901236",
+      "https://www.tiktok.com/@nepaladventure/video/5678901237",
+      "https://www.tiktok.com/@nepalfoodie/video/5678901238"
+    ],
+    "trending": [
+      "https://youtube.com/shorts/LumbiniBuddha1",
+      "https://www.instagram.com/reel/LumbiniTemple2/",
+      "https://www.tiktok.com/@lumbinilife/video/5678901234"
+    ],
+    "categories": {
+      "spiritual": [
+        "https://youtube.com/shorts/LumbiniMeditation1",
+        "https://www.instagram.com/reel/LumbiniPrayer2/",
+        "https://www.tiktok.com/@nepalculture/video/LumbiniSpiritual3"
+      ],
+      "culture": [
+        "https://youtube.com/shorts/LumbiniBuddhist1",
+        "https://www.instagram.com/reel/LumbiniTraditions2/",
+        "https://www.tiktok.com/@nepaltravel/video/LumbiniCulture3"
+      ],
+      "peace": [
+        "https://youtube.com/shorts/LumbiniPeace1",
+        "https://www.instagram.com/reel/LumbiniSerenity2/",
+        "https://www.tiktok.com/@nepaladventure/video/LumbiniTranquility3"
+      ]
+    }
+  }
+}

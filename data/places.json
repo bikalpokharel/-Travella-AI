@@ -1,0 +1,31 @@
+{
+  "kathmandu": [
+    "Pashupatinath Temple",
+    "Swayambhunath",
+    "Boudhanath",
+    "Patan Durbar Square",
+    "Garden of Dreams"
+  ],
+  "pokhara": [
+    "Phewa Lake",
+    "Sarangkot",
+    "World Peace Pagoda",
+    "Devi's Fall",
+    "Gupteshwor Cave"
+  ],
+  "bhaktapur": [
+    "Bhaktapur Durbar Square",
+    "Nyatapola Temple",
+    "Pottery Square"
+  ],
+  "chitwan": [
+    "Chitwan National Park",
+    "Tharu Village Walk",
+    "Rapti River Canoe"
+  ],
+  "lumbini": [
+    "Maya Devi Temple",
+    "Monastic Zone",
+    "World Peace Pagoda"
+  ]
+}

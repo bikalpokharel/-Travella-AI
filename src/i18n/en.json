@@ -1,0 +1,7 @@
+{
+  "greeting": "Hi! I can help plan, book, and discover local gems & food.",
+  "plan_title": "Your {days}-day plan for {city}",
+  "book_tips": "Booking suggestions",
+  "video_title": "Short video recommendations for {place}",
+  "agency_title": "{agency} Itinerary for {city}"
+}

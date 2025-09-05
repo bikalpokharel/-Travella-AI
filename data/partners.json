@@ -1,0 +1,8 @@
+{
+  "hotels": {
+    "deeplink_template": "https://example-hotel.com/search?city={city}&checkin={checkin}&checkout={checkout}&pax={pax}"
+  },
+  "flights": {
+    "deeplink_template": "https://example-flights.com/search?from={origin}&to={destination}&date={date}&pax={pax}"
+  }
+}

@@ -1,10 +1,23 @@
 import json
 from typing import Dict, List, Optional
 from datetime import datetime, timedelta
+import os
+from sqlalchemy.orm import Session
+from ..db import SessionLocal, Hotel as HotelRow, Flight as FlightRow, Activity as ActivityRow, init_db
 
 class BookingService:
     def __init__(self):
+        init_db()
         self.booking_partners = self._load_booking_partners()
+        # API keys (optional)
+        self.expedia_api_key = os.getenv("EXPEDIA_API_KEY")
+        self.agoda_api_key = os.getenv("AGODA_API_KEY")
+        self.booking_api_key = os.getenv("BOOKING_API_KEY")
+        self.skyscanner_api_key = os.getenv("SKYSCANNER_API_KEY")
+        self.amadeus_api_key = os.getenv("AMADEUS_API_KEY")
+        self.kiwi_api_key = os.getenv("KIWI_API_KEY")
+        self.viator_api_key = os.getenv("VIATOR_API_KEY")
+        self.gyg_api_key = os.getenv("GYG_API_KEY")
         # Simple city base-cost heuristics (USD)
         self.city_cost_index = {
             "kathmandu": {"hotel": {"budget": 20, "mid": 45, "luxury": 120}, "meal": 6, "local_transport": 8},
@@ -121,6 +134,179 @@ class BookingService:
             "budget": budget,
             "recommendations": recommendations,
             "total_platforms": len(recommendations)
+        }
+
+    # --- Live/cached integrations (stubs with DB caching) ---
+    def fetch_live_hotels(self, city: str, budget: Optional[str]) -> List[Dict]:
+        # TODO: integrate real providers when keys present
+        return []
+
+    def fetch_live_flights(self, origin: str, destination: str, date: str, pax: int) -> List[Dict]:
+        # TODO: integrate real providers when keys present
+        return []
+
+    def fetch_live_activities(self, city: str, category: Optional[str]) -> List[Dict]:
+        # TODO: integrate real providers when keys present
+        return []
+
+    def cache_hotels(self, city: str, hotels: List[Dict]) -> int:
+        saved = 0
+        with SessionLocal() as db:
+            for h in hotels:
+                row = HotelRow(
+                    name=h.get("name", "Unknown Hotel"),
+                    city=city.lower(),
+                    price=float(h.get("price", 0) or 0),
+                    budget_range=h.get("budget_range"),
+                    package=h.get("package"),
+                    provider=h.get("provider"),
+                    deeplink=h.get("deeplink"),
+                    last_updated=datetime.utcnow(),
+                )
+                db.add(row)
+                saved += 1
+            db.commit()
+        return saved
+
+    def cache_flights(self, flights: List[Dict]) -> int:
+        saved = 0
+        with SessionLocal() as db:
+            for f in flights:
+                row = FlightRow(
+                    origin=f.get("origin"),
+                    destination=f.get("destination"),
+                    price=float(f.get("price", 0) or 0),
+                    airline=f.get("airline"),
+                    provider=f.get("provider"),
+                    last_updated=datetime.utcnow(),
+                )
+                db.add(row)
+                saved += 1
+            db.commit()
+        return saved
+
+    def cache_activities(self, city: str, activities: List[Dict]) -> int:
+        saved = 0
+        with SessionLocal() as db:
+            for a in activities:
+                row = ActivityRow(
+                    name=a.get("name", "Activity"),
+                    city=city.lower(),
+                    price=float(a.get("price", 0) or 0),
+                    provider=a.get("provider"),
+                    url=a.get("url"),
+                    last_updated=datetime.utcnow(),
+                )
+                db.add(row)
+                saved += 1
+            db.commit()
+        return saved
+
+    def get_cached_hotels(self, city: str, limit: int = 10) -> List[Dict]:
+        with SessionLocal() as db:
+            rows = (
+                db.query(HotelRow)
+                .filter(HotelRow.city == city.lower())
+                .order_by(HotelRow.last_updated.desc())
+                .limit(limit)
+                .all()
+            )
+            return [
+                {
+                    "name": r.name,
+                    "city": r.city,
+                    "price": r.price,
+                    "budget_range": r.budget_range,
+                    "package": r.package,
+                    "provider": r.provider,
+                    "deeplink": r.deeplink,
+                    "last_updated": r.last_updated.isoformat(),
+                }
+                for r in rows
+            ]
+
+    def get_cached_flights(self, origin: str, destination: str, limit: int = 10) -> List[Dict]:
+        with SessionLocal() as db:
+            rows = (
+                db.query(FlightRow)
+                .filter(FlightRow.origin == origin.lower(), FlightRow.destination == destination.lower())
+                .order_by(FlightRow.last_updated.desc())
+                .limit(limit)
+                .all()
+            )
+            return [
+                {
+                    "origin": r.origin,
+                    "destination": r.destination,
+                    "price": r.price,
+                    "airline": r.airline,
+                    "provider": r.provider,
+                    "last_updated": r.last_updated.isoformat(),
+                }
+                for r in rows
+            ]
+
+    def get_cached_activities(self, city: str, limit: int = 10) -> List[Dict]:
+        with SessionLocal() as db:
+            rows = (
+                db.query(ActivityRow)
+                .filter(ActivityRow.city == city.lower())
+                .order_by(ActivityRow.last_updated.desc())
+                .limit(limit)
+                .all()
+            )
+            return [
+                {
+                    "name": r.name,
+                    "city": r.city,
+                    "price": r.price,
+                    "provider": r.provider,
+                    "url": r.url,
+                    "last_updated": r.last_updated.isoformat(),
+                }
+                for r in rows
+            ]
+
+    def get_all_booking_options(
+        self,
+        city: str,
+        origin: Optional[str] = None,
+        date: Optional[str] = None,
+        pax: int = 2,
+        budget: Optional[str] = None,
+    ) -> Dict:
+        # Hotels: try cached first
+        hotels_cached = self.get_cached_hotels(city)
+        if not hotels_cached:
+            live_hotels = self.fetch_live_hotels(city, budget)
+            if live_hotels:
+                self.cache_hotels(city, live_hotels)
+                hotels_cached = self.get_cached_hotels(city)
+
+        flights_cached: List[Dict] = []
+        if origin and date:
+            flights_cached = self.get_cached_flights(origin, city)
+            if not flights_cached:
+                live_f = self.fetch_live_flights(origin, city, date, pax)
+                if live_f:
+                    self.cache_flights(live_f)
+                    flights_cached = self.get_cached_flights(origin, city)
+
+        activities_cached = self.get_cached_activities(city)
+        if not activities_cached:
+            live_a = self.fetch_live_activities(city, None)
+            if live_a:
+                self.cache_activities(city, live_a)
+                activities_cached = self.get_cached_activities(city)
+
+        # Also include platform deeplinks for hotels
+        deeplinks = self.get_hotel_recommendations(city=city, pax=pax, budget=budget)
+
+        return {
+            "hotels": hotels_cached,
+            "hotel_deeplinks": deeplinks.get("recommendations", []),
+            "flights": flights_cached,
+            "activities": activities_cached,
         }
     
     def get_flight_recommendations(self, origin: str, destination: str, 

@@ -6,6 +6,7 @@ from .predict import Predictor
 from .entities import load_cities, parse_entities
 from .config import CITIES_TXT, MODEL_PATH
 from .services import recommend, booking, videos, i18n
+from .db import init_db
 from .services.llm import LLMService
 from .services.video_collector import VideoCollector
 
@@ -22,6 +23,7 @@ app.add_middleware(
 
 # Load resources
 load_cities(CITIES_TXT)
+init_db()
 
 # Initialize LLM service
 llm_service = LLMService()
@@ -84,12 +86,14 @@ class PlanReq(BaseModel):
     city: Optional[str] = Field(default=None, examples=["kathmandu"])
     days: int = Field(default=2, ge=1, le=14)
     profile: Optional[str] = Field(default=None, examples=["solo","family","business","couple","backpacker"])
+    pax: int = Field(default=2, ge=1, le=12)
+    budget: str = Field(default="mid", examples=["budget","mid","luxury"])
 
 @app.post("/plan")
 def plan(req: PlanReq, x_lang: Optional[str] = Header(default=None, alias="X-Lang")):
     i18n.load(x_lang)
     city = (req.city or "kathmandu").lower()
-    out = recommend.assemble_plan(city, req.days, req.profile)
+    out = recommend.assemble_plan(city, req.days, req.profile, req.pax, req.budget)
     out["title"] = i18n.t("plan_title", city=city.capitalize(), days=req.days)
     return out
 
@@ -107,6 +111,14 @@ class BudgetPlanReq(BaseModel):
 def short_videos(req: VideoReq, x_lang: Optional[str] = Header(default=None, alias="X-Lang")):
     i18n.load(x_lang)
     video_service = videos.VideoService()
+    # Try live fetch + cache in background-like manner (sync for now)
+    try:
+        import asyncio
+        live = asyncio.run(video_service.fetch_live_trending(req.place))
+        if live:
+            video_service.cache_videos(req.place, live)
+    except Exception:
+        pass
     out = video_service.get_video_recommendations(req.place, "all")
     out["title"] = i18n.t("video_title", place=req.place.capitalize())
     return out
@@ -116,11 +128,22 @@ class BookHotelReq(BaseModel):
     checkin: Optional[str] = Field(default=None, examples=["2025-08-20"])
     nights: int = Field(default=2, ge=1, le=30)
     pax: int = Field(default=2, ge=1, le=10)
+    origin: Optional[str] = Field(default=None, examples=["delhi"]) 
+    date: Optional[str] = Field(default=None, examples=["2025-09-01"]) 
+    budget: Optional[str] = Field(default=None, examples=["budget","mid","luxury"]) 
 
 @app.post("/book/suggest")
 def book_suggest(req: BookHotelReq, x_lang: Optional[str] = Header(default=None, alias="X-Lang")):
     i18n.load(x_lang)
-    return {"title": i18n.t("book_tips"), "hotel": booking.hotel_suggest(req.city, req.checkin, req.nights, req.pax)}
+    bs = booking.BookingService()
+    options = bs.get_all_booking_options(
+        city=req.city,
+        origin=req.origin,
+        date=req.date,
+        pax=req.pax,
+        budget=req.budget,
+    )
+    return {"title": i18n.t("book_tips"), **options}
 
 class FlightReq(BaseModel):
     origin: str = Field(..., examples=["kathmandu"])

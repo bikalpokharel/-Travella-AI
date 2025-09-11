@@ -1,5 +1,8 @@
 import json
-from typing import Dict, List
+from typing import Dict, List, Optional
+from datetime import datetime
+from .videos import VideoService
+from .booking import BookingService
 from ..config import PLACES_JSON, FOODS_JSON, GEMS_JSON
 from ..preprocess import normalize
 
@@ -29,19 +32,61 @@ def suggest(intent: str, city: str | None) -> Dict:
         out["results"] = ["Tell me more about your interests."]
     return out
 
-def assemble_plan(city: str, days: int = 2, profile: str | None = None) -> Dict:
+def assemble_plan(
+    city: str,
+    days: int = 2,
+    profile: Optional[str] = None,
+    pax: int = 2,
+    budget_level: str = "mid",
+) -> Dict:
     places = _get_city_list(PLACES, city)[:6]
     gems = _get_city_list(GEMS, city)[:4]
     foods = _get_city_list(FOODS, city)[:6]
-    plan = []
+
+    video_service = VideoService()
+    booking_service = BookingService()
+
+    # Get a few trending/cached videos for the city
+    videos_resp = video_service.get_trending_videos(city)
+    candidate_videos = []
+    for v in videos_resp.get("videos", [])[:6]:
+        if isinstance(v, str):
+            candidate_videos.append(v)
+        else:
+            candidate_videos.append(v.get("url"))
+
+    # Get hotel suggestions (deeplinks only; not live pricing yet)
+    hotels = booking_service.get_hotel_recommendations(city=city, pax=pax, budget=budget_level)
+    hotel_names = [rec["platform"] for rec in hotels.get("recommendations", [])][:3]
+
+    days_out: List[Dict] = []
     for d in range(1, max(1, days) + 1):
-        day_items = []
+        day_items: List[str] = []
         if d == 1:
             day_items += places[:3]
         elif d == 2:
             day_items += gems[:2] + places[3:5]
         else:
-            day_items += places[d % len(places): (d % len(places)) + 3]
-        eats = foods[(d-1) % len(foods): ((d-1) % len(foods)) + 2]
-        plan.append({"day": d, "activities": day_items, "food": eats})
-    return {"city": city, "days": days, "profile": profile, "plan": plan}
+            idx = d % max(1, len(places))
+            day_items += places[idx: idx + 3]
+
+        eats = foods[(d-1) % max(1, len(foods)): ((d-1) % max(1, len(foods))) + 2]
+        associated_videos = candidate_videos[(d-1) % max(1, len(candidate_videos)): ((d-1) % max(1, len(candidate_videos))) + 2]
+
+        days_out.append({
+            "day": d,
+            "activities": day_items,
+            "food": eats,
+            "videos": [v for v in associated_videos if v],
+            "hotel_options": hotel_names,
+        })
+
+    return {
+        "summary": f"{days}-day {city.capitalize()} plan",
+        "city": city,
+        "days": days,
+        "profile": profile,
+        "pax": pax,
+        "budget": budget_level,
+        "days_detail": days_out,
+    }

@@ -1,10 +1,15 @@
 import json
 from typing import Dict, List, Optional
+from datetime import datetime, timedelta
+import httpx
+from sqlalchemy.orm import Session
+from ..db import init_db, SessionLocal, Video
 from pathlib import Path
 from ..config import VIDEOS_JSON
 
 class VideoService:
     def __init__(self):
+        init_db()
         self.video_data = self._load_video_data()
     
     def _load_video_data(self) -> Dict:
@@ -201,23 +206,85 @@ class VideoService:
         return f"{likes} likes"
     
     def get_trending_videos(self, place: str) -> Dict:
-        """Get trending videos for a place"""
+        """Get trending videos for a place (DB first, then fallback)"""
         place_lower = place.lower()
-        
+        now = datetime.utcnow()
+
+        # Try DB cache (last 24h)
+        with SessionLocal() as db:
+            recent = (
+                db.query(Video)
+                .filter(Video.city == place_lower)
+                .order_by(Video.trending_score.desc(), Video.last_updated.desc())
+                .limit(10)
+                .all()
+            )
+            if recent:
+                videos = [
+                    {
+                        "url": v.url,
+                        "platform": v.platform,
+                        "title": v.title,
+                        "thumbnail": v.thumbnail,
+                        "duration": None,
+                        "views": None,
+                        "likes": None,
+                    }
+                    for v in recent
+                ]
+                return {"title": f"Trending Videos for {place.capitalize()}", "videos": videos, "total_count": len(videos)}
+
+        # Fallback to file
         if place_lower not in self.video_data:
-            return {
-                "title": f"Trending Videos for {place.capitalize()}",
-                "videos": [],
-                "message": f"No trending videos found for {place.capitalize()}"
-            }
-        
+            return {"title": f"Trending Videos for {place.capitalize()}", "videos": [], "message": f"No trending videos found for {place.capitalize()}"}
         trending_videos = self.video_data[place_lower].get("trending", [])
-        
-        return {
-            "title": f"Trending Videos for {place.capitalize()}",
-            "videos": trending_videos[:5],  # Top 5 trending
-            "total_count": len(trending_videos)
-        }
+        return {"title": f"Trending Videos for {place.capitalize()}", "videos": trending_videos[:5], "total_count": len(trending_videos)}
+
+    async def fetch_live_trending(self, place: str) -> List[Dict]:
+        """Fetch live trending short videos via public endpoints or scrapers (placeholder)."""
+        place_q = place.replace(" ", "%20")
+        results: List[Dict] = []
+
+        # NOTE: Replace with official APIs where available.
+        # Placeholder: construct search URLs for manual review/scraper integration.
+        results.append({
+            "platform": "youtube",
+            "url": f"https://www.youtube.com/results?search_query={place_q}%20shorts",
+            "title": f"Trending YouTube Shorts for {place}",
+            "thumbnail": None,
+        })
+        results.append({
+            "platform": "instagram",
+            "url": f"https://www.instagram.com/explore/search/keyword/?q={place_q}",
+            "title": f"Trending Instagram Reels for {place}",
+            "thumbnail": None,
+        })
+        results.append({
+            "platform": "tiktok",
+            "url": f"https://www.tiktok.com/search?q={place_q}",
+            "title": f"Trending TikTok for {place}",
+            "thumbnail": None,
+        })
+        return results
+
+    def cache_videos(self, city: str, videos: List[Dict]) -> int:
+        """Persist fetched videos into DB cache."""
+        saved = 0
+        with SessionLocal() as db:
+            for v in videos:
+                rec = Video(
+                    city=city.lower(),
+                    platform=v.get("platform", "unknown"),
+                    url=v.get("url", ""),
+                    trending_score=float(v.get("trending_score", 0.0)),
+                    title=v.get("title"),
+                    thumbnail=v.get("thumbnail"),
+                    last_updated=datetime.utcnow(),
+                )
+                db.add(rec)
+                saved += 1
+            db.commit()
+        return saved
     
     def get_video_by_category(self, place: str, category: str) -> Dict:
         """Get videos by category (food, culture, adventure, etc.)"""

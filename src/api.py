@@ -7,13 +7,14 @@ from .entities import load_cities, parse_entities
 from .config import CITIES_TXT, MODEL_PATH
 from .services import recommend, booking, videos, i18n
 from .services.llm import LLMService
+from .services.video_collector import VideoCollector
 
-app = FastAPI(title="Travel Assistant Pro — v1", version="1.0.0")
+app = FastAPI(title="Travella AI — v1", version="1.1.0")
 
 # Add CORS middleware to allow frontend to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://127.0.0.1:8080", "http://localhost:3000"],
+    allow_origins=["http://localhost:8080", "http://127.0.0.1:8080", "http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -95,10 +96,18 @@ def plan(req: PlanReq, x_lang: Optional[str] = Header(default=None, alias="X-Lan
 class VideoReq(BaseModel):
     place: str = Field(..., examples=["kathmandu"])
 
+class BudgetPlanReq(BaseModel):
+    city: str = Field(..., examples=["kathmandu"])
+    days: int = Field(..., ge=1, le=60, examples=[3])
+    pax: int = Field(default=2, ge=1, le=12)
+    budget_level: str = Field(default="mid", examples=["budget", "mid", "luxury"])
+    origin: Optional[str] = Field(default=None, examples=["delhi", "pokhara"])
+
 @app.post("/videos")
 def short_videos(req: VideoReq, x_lang: Optional[str] = Header(default=None, alias="X-Lang")):
     i18n.load(x_lang)
-    out = videos.video_recs(req.place)
+    video_service = videos.VideoService()
+    out = video_service.get_video_recommendations(req.place, "all")
     out["title"] = i18n.t("video_title", place=req.place.capitalize())
     return out
 
@@ -168,6 +177,97 @@ def tiktok_videos(req: VideoReq, x_lang: Optional[str] = Header(default=None, al
     i18n.load(x_lang)
     video_service = videos.VideoService()
     return video_service.get_tiktok_videos(req.place)
+
+# Budget planning endpoint
+@app.post("/budget/plan")
+def budget_plan(req: BudgetPlanReq, x_lang: Optional[str] = Header(default=None, alias="X-Lang")):
+    i18n.load(x_lang)
+    bs = booking.BookingService()
+    return bs.plan_by_budget(city=req.city, days=req.days, pax=req.pax, budget_level=req.budget_level, origin=req.origin)
+
+# Video Collection Endpoints
+@app.post("/admin/collect-videos")
+def collect_videos_for_destination(req: VideoReq):
+    """Collect videos for a specific destination"""
+    try:
+        collector = VideoCollector()
+        result = collector.collect_videos_for_destination(req.place)
+        return {
+            "status": "success",
+            "destination": req.place,
+            "message": f"Successfully collected videos for {req.place}",
+            "data": result
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "destination": req.place,
+            "message": f"Error collecting videos: {str(e)}"
+        }
+
+@app.post("/admin/collect-all-videos")
+def collect_all_videos():
+    """Collect videos for all destinations (Backend only)"""
+    try:
+        collector = VideoCollector()
+        result = collector.collect_all_destinations()
+        return {
+            "status": "success",
+            "message": "Successfully collected videos for all destinations",
+            "destinations": list(result.keys()),
+            "total_destinations": len(result)
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error collecting videos: {str(e)}"
+        }
+
+@app.get("/admin/video-stats")
+def get_video_stats():
+    """Get video collection statistics (Backend only)"""
+    try:
+        collector = VideoCollector()
+        stats = {}
+        total_youtube = 0
+        total_instagram = 0
+        total_tiktok = 0
+        
+        for destination in ["kathmandu", "pokhara", "chitwan", "lumbini", "bhaktapur", "patan", "nagarkot", "bandipur"]:
+            if destination in collector.video_data:
+                data = collector.video_data[destination]
+                youtube_count = len(data.get("youtube_videos", []))
+                instagram_count = len(data.get("instagram_reels", []))
+                tiktok_count = len(data.get("tiktok", []))
+                
+                total_youtube += youtube_count
+                total_instagram += instagram_count
+                total_tiktok += tiktok_count
+                
+                stats[destination] = {
+                    "youtube": youtube_count,
+                    "instagram": instagram_count,
+                    "tiktok": tiktok_count,
+                    "total": youtube_count + instagram_count + tiktok_count
+                }
+            else:
+                stats[destination] = {"youtube": 0, "instagram": 0, "tiktok": 0, "total": 0}
+        
+        return {
+            "status": "success",
+            "statistics": stats,
+            "totals": {
+                "youtube": total_youtube,
+                "instagram": total_instagram,
+                "tiktok": total_tiktok,
+                "grand_total": total_youtube + total_instagram + total_tiktok
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error getting video stats: {str(e)}"
+        }
 
 # Enhanced Booking Endpoints
 class ActivityReq(BaseModel):

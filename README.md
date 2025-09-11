@@ -1,4 +1,4 @@
-# Travel Assistant Pro — v1 (Final Product)
+# Travella AI — v1 (Final Product)
 
 An opinionated, production-ready starter for your travel NLP assistant. It covers:
 - **Plan / Book / Discover**: itineraries, hotel tips, transport options.
@@ -25,7 +25,7 @@ pip install -r requirements.txt
 # Train intent model
 python -m src.train
 
-# Run API
+# Run API (Travella AI)
 uvicorn src.api:app --reload
 # Open http://127.0.0.1:8000/docs
 ```

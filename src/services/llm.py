@@ -211,7 +211,29 @@ class LLMService:
         except ImportError:
             return "OpenAI library not available"
         except Exception as e:
-            raise Exception(f"OpenAI API error: {e}")
+            print(f"OpenAI API error: {e}")
+            return self._get_fallback_response(prompt)
+    
+    def _get_fallback_response(self, prompt: str) -> str:
+        """Generate a helpful fallback response when LLM APIs are unavailable"""
+        # Extract basic info from prompt
+        prompt_lower = prompt.lower()
+        
+        # Check for common travel intents
+        if any(word in prompt_lower for word in ['plan', 'itinerary', 'schedule', 'days']):
+            return "🌟 I'd love to help you plan your Nepal adventure! While I'm having some technical difficulties with my advanced AI, I can still provide you with amazing travel recommendations. Try asking about specific places like Kathmandu, Pokhara, or Chitwan, and I'll give you detailed suggestions!"
+        
+        elif any(word in prompt_lower for word in ['food', 'eat', 'restaurant', 'cuisine']):
+            return "🍜 Food is one of the best parts of traveling in Nepal! I recommend trying momo (dumplings), dal bhat (lentil curry with rice), and Newari cuisine. Each region has its own specialties - Kathmandu for Newari food, Pokhara for fresh fish, and the mountains for hearty trekking meals!"
+        
+        elif any(word in prompt_lower for word in ['hotel', 'accommodation', 'stay', 'booking']):
+            return "🏨 For accommodations in Nepal, you have amazing options! From budget-friendly guesthouses in Thamel (Kathmandu) to luxury resorts in Pokhara with mountain views. I can help you find the perfect place based on your budget and preferences!"
+        
+        elif any(word in prompt_lower for word in ['video', 'youtube', 'tiktok', 'instagram']):
+            return "📹 I have access to amazing travel videos! Check out the video recommendations section where you can find YouTube Shorts, TikTok videos, and Instagram Reels about your destination. These will give you a real visual taste of what to expect!"
+        
+        else:
+            return "🌟 Welcome to Nepal! I'm your travel assistant and I'm here to help you discover the incredible beauty of this Himalayan country. While I'm experiencing some technical hiccups, I can still provide you with travel tips, recommendations, and help you plan your adventure. What would you like to know about Nepal?"
     
     async def _call_anthropic(self, prompt: str) -> str:
         """Call Anthropic Claude API"""
@@ -233,7 +255,8 @@ class LLMService:
         except ImportError:
             return "Anthropic library not available"
         except Exception as e:
-            raise Exception(f"Anthropic API error: {e}")
+            print(f"Anthropic API error: {e}")
+            return self._get_fallback_response(prompt)
     
     def get_fallback_response(self, intent: str, entities: Dict, city: Optional[str] = None) -> str:
         """Fallback response when LLM is not available"""

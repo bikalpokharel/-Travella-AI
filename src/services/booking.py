@@ -5,6 +5,14 @@ from datetime import datetime, timedelta
 class BookingService:
     def __init__(self):
         self.booking_partners = self._load_booking_partners()
+        # Simple city base-cost heuristics (USD)
+        self.city_cost_index = {
+            "kathmandu": {"hotel": {"budget": 20, "mid": 45, "luxury": 120}, "meal": 6, "local_transport": 8},
+            "pokhara":   {"hotel": {"budget": 22, "mid": 50, "luxury": 140}, "meal": 7, "local_transport": 7},
+            "chitwan":   {"hotel": {"budget": 18, "mid": 40, "luxury": 110}, "meal": 6, "local_transport": 6},
+            "lumbini":   {"hotel": {"budget": 16, "mid": 38, "luxury": 100}, "meal": 5, "local_transport": 6},
+            "bhaktapur": {"hotel": {"budget": 18, "mid": 42, "luxury": 115}, "meal": 6, "local_transport": 6},
+        }
     
     def _load_booking_partners(self) -> Dict:
         """Load booking partner data"""
@@ -177,6 +185,104 @@ class BookingService:
             "airbnb": ["Unique stays", "Local hosts", "Flexible cancellation"]
         }
         return features.get(platform, ["Competitive prices", "Easy booking"])
+
+    def plan_by_budget(
+        self,
+        city: str,
+        days: int,
+        pax: int = 2,
+        budget_level: str = "mid",
+        origin: Optional[str] = None,
+    ) -> Dict:
+        """Create a budget-sorted journey plan with estimated costs and booking options.
+
+        budget_level: one of ["budget", "mid", "luxury"]
+        Returns a structured breakdown with hotel costs, transport estimates, meals, activities, and deeplinks.
+        """
+        city_key = city.lower()
+        ci = self.city_cost_index.get(city_key) or {"hotel": {"budget": 20, "mid": 45, "luxury": 120}, "meal": 6, "local_transport": 7}
+
+        # Nights = days - 1, but ensure at least 1 night if days >= 1
+        nights = max(1, max(0, days - 1))
+
+        # Hotel estimate per room per night; assume 1 room for up to 2 pax, else ceil(pax/2)
+        rooms = (pax + 1) // 2
+        hotel_ppn = ci["hotel"].get(budget_level, ci["hotel"]["mid"])  # per room per night
+        hotel_total = hotel_ppn * nights * rooms
+
+        # Meals estimate per person per day
+        meals_total = ci["meal"] * pax * days
+
+        # Local transport per day (shared)
+        local_transport_total = ci["local_transport"] * days
+
+        # Intercity/arrival transport (very rough): if origin present and different city, add a bucket
+        arrival_transport = 0
+        if origin and origin.lower() != city_key:
+            # Heuristic: domestic flight vs bus depending on budget level
+            if budget_level == "luxury":
+                arrival_transport = 120 * pax  # domestic flight approx
+            elif budget_level == "mid":
+                arrival_transport = 60 * pax   # mix (bus + upgrades)
+            else:
+                arrival_transport = 30 * pax   # tourist bus
+
+        # Activities bucket by budget level
+        activities_per_day = {"budget": 8, "mid": 20, "luxury": 45}
+        activities_total = activities_per_day.get(budget_level, 20) * days * pax
+
+        # Compute grand total
+        grand_total = hotel_total + meals_total + local_transport_total + arrival_transport + activities_total
+
+        # Compose booking deeplinks for hotels
+        hotel_recs = self.get_hotel_recommendations(city=city, pax=pax, budget=budget_level)
+
+        # Optional flight deeplink (only if origin provided)
+        flight_recs = None
+        if origin:
+            from datetime import datetime, timedelta
+            date = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+            try:
+                flight_recs = self.get_flight_recommendations(origin=origin, destination=city_key, date=date, pax=pax)
+            except Exception:
+                flight_recs = None
+
+        # Suggested hotel packages (synthetic based on tier)
+        package_map = {
+            "budget": [
+                {"name": "Budget Saver", "includes": ["Room only", "Free Wi‑Fi"], "avg_price_per_night": hotel_ppn, "cancellable": True},
+                {"name": "Value Breakfast", "includes": ["Room + Breakfast"], "avg_price_per_night": round(hotel_ppn * 1.15, 2), "cancellable": True},
+            ],
+            "mid": [
+                {"name": "Comfort Plus", "includes": ["Room + Breakfast"], "avg_price_per_night": hotel_ppn, "cancellable": True},
+                {"name": "Half Board", "includes": ["Room + Breakfast + Dinner"], "avg_price_per_night": round(hotel_ppn * 1.35, 2), "cancellable": True},
+            ],
+            "luxury": [
+                {"name": "Executive", "includes": ["Suite", "Breakfast", "Airport pickup"], "avg_price_per_night": hotel_ppn, "cancellable": True},
+                {"name": "All Inclusive", "includes": ["All meals", "Spa credit"], "avg_price_per_night": round(hotel_ppn * 1.8, 2), "cancellable": True},
+            ],
+        }
+
+        return {
+            "city": city_key,
+            "days": days,
+            "nights": nights,
+            "pax": pax,
+            "budget_level": budget_level,
+            "rooms": rooms,
+            "estimates": {
+                "hotel_total": round(hotel_total, 2),
+                "meals_total": round(meals_total, 2),
+                "local_transport_total": round(local_transport_total, 2),
+                "arrival_transport_total": round(arrival_transport, 2),
+                "activities_total": round(activities_total, 2),
+                "grand_total": round(grand_total, 2)
+            },
+            "daily_average_per_person": round(grand_total / max(1, days) / max(1, pax), 2),
+            "hotel_packages": package_map.get(budget_level, []),
+            "hotel_options": hotel_recs,
+            "flight_options": flight_recs,
+        }
     
     def _get_flight_features(self, platform: str) -> List[str]:
         """Get flight platform features"""

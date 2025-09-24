@@ -312,8 +312,20 @@ class ApiService {
     })
   }
 
-  async getUserBookings(token: string): Promise<BookingCreateResponse[]> {
-    return this.request('/bookings', {
+  async getUserActivityStats(token: string): Promise<{
+    total_searches: number
+    total_plans: number
+    total_videos: number
+    total_bookings: number
+    recent_activities: Array<{
+      timestamp: string
+      action: string
+      details: string
+      user_ip: string
+      user?: string
+    }>
+  }> {
+    return this.request('/user/activity-stats', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

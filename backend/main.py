@@ -159,6 +159,7 @@ class UserActivity(BaseModel):
     action: str
     details: str
     user_ip: str
+    user: Optional[str] = None
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -203,13 +204,14 @@ plan_count = 0
 video_count = 0
 booking_count = 0
 
-def log_activity(action: str, details: str, user_ip: str = "127.0.0.1"):
+def log_activity(action: str, details: str, user_ip: str = "127.0.0.1", user: str = None):
     global user_activities
     activity = UserActivity(
         timestamp=datetime.now().isoformat(),
         action=action,
         details=details,
-        user_ip=user_ip
+        user_ip=user_ip,
+        user=user
     )
     user_activities.append(activity)
     # Keep only last 100 activities
@@ -473,6 +475,39 @@ async def get_user_bookings(current_user: str = Depends(verify_token)):
     
     return user_bookings
 
+@app.get("/user/activity-stats")
+async def get_user_activity_stats(current_user: str = Depends(verify_token)):
+    """Get user's activity statistics"""
+    try:
+        # Count user's activities from activity log
+        user_activity_list = [activity for activity in user_activities if activity.get("user") == current_user]
+        
+        # Count different types of activities
+        searches = len([a for a in user_activity_list if a.get("action") == "search"])
+        plans = len([a for a in user_activity_list if a.get("action") == "plan"])
+        videos = len([a for a in user_activity_list if a.get("action") == "videos"])
+        bookings = len([a for a in user_activity_list if a.get("action") == "booking_created"])
+        
+        # Get user's bookings count
+        user_bookings = [booking for booking in bookings.values() if booking.get("user") == current_user]
+        
+        return {
+            "total_searches": searches,
+            "total_plans": plans,
+            "total_videos": videos,
+            "total_bookings": len(user_bookings),
+            "recent_activities": user_activity_list[-10:] if user_activity_list else []
+        }
+    except Exception as e:
+        print(f"Error getting user activity stats: {e}")
+        return {
+            "total_searches": 0,
+            "total_plans": 0,
+            "total_videos": 0,
+            "total_bookings": 0,
+            "recent_activities": []
+        }
+
 # New admin dashboard endpoint
 @app.get("/admin/dashboard", response_model=DashboardStats)
 async def get_dashboard_stats(current_user: str = Depends(verify_token)):
@@ -535,16 +570,30 @@ async def get_dashboard_stats(current_user: str = Depends(verify_token)):
 class PredictRequest(BaseModel):
     text: str = Field(description="Text to predict intent for")
 
+def verify_token_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
+    """Optional token verification - returns username if token is valid, None otherwise"""
+    try:
+        if not credentials:
+            return None
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            return None
+        return username
+    except jwt.PyJWTError:
+        return None
+
 @app.post("/predict")
 async def predict(
     request: PredictRequest,
-    x_lang: Optional[str] = Header(None)
+    x_lang: Optional[str] = Header(None),
+    current_user: Optional[str] = Depends(verify_token_optional)
 ):
     global search_count
     search_count += 1
     
     text = request.text
-    log_activity("search", f"User searched: {text}")
+    log_activity("search", f"User searched: {text}", user=current_user)
     
     try:
         # Get prediction from the model

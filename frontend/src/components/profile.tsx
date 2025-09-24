@@ -33,6 +33,7 @@ import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { useAuth } from '@/contexts/AuthContext'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import { apiService } from '@/services/api'
 import type { UserProfile } from '@/types'
 
 export function Profile() {
@@ -57,13 +58,73 @@ export function Profile() {
   })
   const [isLoading, setIsLoading] = useState(false)
 
-  const { user, updateProfile } = useAuth()
+  const { user, updateProfile, token } = useAuth()
 
   useEffect(() => {
     if (user?.profile) {
       setProfileData(user.profile)
     }
   }, [user])
+
+  useEffect(() => {
+    const loadUserActivityStats = async () => {
+      if (token) {
+        try {
+          const stats = await apiService.getUserActivityStats(token)
+          setUserStats({
+            totalSearches: stats.total_searches,
+            totalPlans: stats.total_plans,
+            totalVideos: stats.total_videos,
+            totalBookings: stats.total_bookings
+          })
+          
+          // Convert backend activities to frontend format
+          const activities = stats.recent_activities.map(activity => ({
+            type: activity.action,
+            description: activity.details,
+            time: formatTimeAgo(activity.timestamp),
+            icon: getActivityIcon(activity.action)
+          }))
+          setRecentActivity(activities)
+        } catch (error) {
+          console.error('Failed to load user activity stats:', error)
+          // Fallback to empty stats
+          setUserStats({
+            totalSearches: 0,
+            totalPlans: 0,
+            totalVideos: 0,
+            totalBookings: 0
+          })
+          setRecentActivity([])
+        }
+      }
+    }
+
+    loadUserActivityStats()
+  }, [token])
+
+  const formatTimeAgo = (timestamp: string) => {
+    const now = new Date()
+    const activityTime = new Date(timestamp)
+    const diffInHours = Math.floor((now.getTime() - activityTime.getTime()) / (1000 * 60 * 60))
+    
+    if (diffInHours < 1) return 'Just now'
+    if (diffInHours < 24) return `${diffInHours} hours ago`
+    const diffInDays = Math.floor(diffInHours / 24)
+    if (diffInDays < 7) return `${diffInDays} days ago`
+    const diffInWeeks = Math.floor(diffInDays / 7)
+    return `${diffInWeeks} weeks ago`
+  }
+
+  const getActivityIcon = (action: string) => {
+    switch (action) {
+      case 'search': return Search
+      case 'plan': return Calendar
+      case 'videos': return Video
+      case 'booking_created': return Plane
+      default: return Activity
+    }
+  }
 
   const handleSaveProfile = async () => {
     setIsLoading(true)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Send, 
@@ -7,11 +7,8 @@ import {
   MapPin, 
   Calendar,
   DollarSign,
-  Users,
   Sparkles,
-  Camera,
   Coffee,
-  Mountain,
   Loader2
 } from 'lucide-react'
 import { Button } from './ui/button'

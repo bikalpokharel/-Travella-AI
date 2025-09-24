@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { 
   Search, 
-  Plus, 
   CheckCircle, 
   XCircle, 
   Clock, 
@@ -11,10 +9,7 @@ import {
   Building,
   MapPin,
   Utensils,
-  Filter,
-  RefreshCw,
-  Upload,
-  Download
+  RefreshCw
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

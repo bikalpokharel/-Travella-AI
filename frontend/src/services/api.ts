@@ -9,9 +9,16 @@ import type {
   BookingResponse,
   AdminLoginRequest,
   AdminLoginResponse,
+  DashboardStats,
+  UserLoginResponse,
+  UserVerifyResponse,
+  UserProfileResponse,
+  UserProfile,
+  BookingCreateRequest,
+  BookingCreateResponse
 } from '@/types'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8002'
+const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8002'
 
 class ApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -294,7 +301,7 @@ class ApiService {
     })
   }
 
-  async createBooking(token: string, bookingData: BookingRequest): Promise<BookingResponse> {
+  async createBooking(token: string, bookingData: BookingCreateRequest): Promise<BookingCreateResponse> {
     return this.request('/bookings', {
       method: 'POST',
       body: JSON.stringify(bookingData),
@@ -305,7 +312,7 @@ class ApiService {
     })
   }
 
-  async getUserBookings(token: string): Promise<BookingResponse[]> {
+  async getUserBookings(token: string): Promise<BookingCreateResponse[]> {
     return this.request('/bookings', {
       method: 'GET',
       headers: {

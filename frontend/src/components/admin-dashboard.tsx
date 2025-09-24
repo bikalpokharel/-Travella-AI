@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   LogOut, 
@@ -9,33 +9,21 @@ import {
   Plane, 
   MapPin, 
   TrendingUp, 
-  Activity, 
   Shield, 
-  Bell,
   Search,
   Calendar,
-  Clock,
   Database,
   Cpu,
-  Wifi,
   AlertCircle,
   CheckCircle,
   RefreshCw,
-  Plus,
   Edit,
   Trash2,
-  Save,
-  X,
-  Upload,
-  FileText,
-  Image,
   Globe
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { toast } from 'sonner'
 import { apiService } from '@/services/api'
@@ -53,14 +41,17 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
   const [activeTab, setActiveTab] = useState('overview')
-  const [contentData, setContentData] = useState({
+  const [contentData, setContentData] = useState<{
+    destinations: Array<{id: number, name: string, description: string, status: string}>,
+    videos: Array<{id: number, title: string, url: string, views: number, status: string}>,
+    foods: Array<{id: number, name: string, description: string, rating: number, status: string}>,
+    partners: Array<{id: number, name: string, type: string, status: string}>
+  }>({
     destinations: [],
     videos: [],
     foods: [],
     partners: []
   })
-  const [editingItem, setEditingItem] = useState<any>(null)
-  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     verifyAdmin()
@@ -129,32 +120,7 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
   }
 
   const handleEditItem = (item: any, type: string) => {
-    setEditingItem({ ...item, type })
-    setIsEditing(true)
-  }
-
-  const handleSaveItem = async () => {
-    try {
-      // In a real app, this would be an API call to save the item
-      toast.success(`${editingItem.type} updated successfully`)
-      setIsEditing(false)
-      setEditingItem(null)
-      loadContentData()
-    } catch (error) {
-      console.error('Error saving item:', error)
-      toast.error('Failed to save item')
-    }
-  }
-
-  const handleDeleteItem = async (id: number, type: string) => {
-    try {
-      // In a real app, this would be an API call to delete the item
-      toast.success(`${type} deleted successfully`)
-      loadContentData()
-    } catch (error) {
-      console.error('Error deleting item:', error)
-      toast.error('Failed to delete item')
-    }
+    console.log('Edit item:', item, type)
   }
 
   const handleLogout = async () => {
@@ -428,7 +394,7 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Popular Destinations</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {stats.popular_destinations.map((destination, index) => (
+              {stats.popular_destinations.map((destination) => (
                 <Card key={destination.name} className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -590,7 +556,7 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
                         <Button size="sm" variant="outline" onClick={() => handleEditItem(destination, 'destination')}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteItem(destination.id, 'destination')}>
+                        <Button size="sm" variant="destructive" onClick={() => console.log('Delete destination', destination.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -627,7 +593,7 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
                         <Button size="sm" variant="outline" onClick={() => handleEditItem(video, 'video')}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteItem(video.id, 'video')}>
+                        <Button size="sm" variant="destructive" onClick={() => console.log('Delete video', video.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -661,7 +627,7 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
                         <Button size="sm" variant="outline" onClick={() => handleEditItem(partner, 'partner')}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteItem(partner.id, 'partner')}>
+                        <Button size="sm" variant="destructive" onClick={() => console.log('Delete partner', partner.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

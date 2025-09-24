@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
-  User, 
   Settings, 
   Heart, 
   MapPin, 
@@ -14,15 +13,12 @@ import {
   Edit,
   Camera,
   Plane,
-  Building,
   Star,
   ChevronRight,
-  Globe,
   Upload,
   Search,
   Video,
   Clock,
-  TrendingUp,
   Activity,
   Save,
   X
@@ -35,9 +31,7 @@ import { Switch } from './ui/switch'
 import { Separator } from './ui/separator'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { apiService } from '@/services/api'
 import { useAuth } from '@/contexts/AuthContext'
-import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import type { UserProfile } from '@/types'
 
@@ -63,7 +57,7 @@ export function Profile() {
   })
   const [isLoading, setIsLoading] = useState(false)
 
-  const { user, updateProfile, logout } = useAuth()
+  const { user, updateProfile } = useAuth()
 
   useEffect(() => {
     if (user?.profile) {
@@ -84,6 +78,8 @@ export function Profile() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
     // Simulate loading user stats (in a real app, this would come from the backend)
     const mockStats = {
       totalSearches: Math.floor(Math.random() * 50) + 10,

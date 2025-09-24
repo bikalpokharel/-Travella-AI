@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Plane, 
@@ -8,20 +8,16 @@ import {
   Coffee, 
   Car,
   MapPin,
-  Calendar,
-  Users,
   Clock,
   Shield,
-  ArrowRight,
   Filter,
   Heart,
-  Share2,
   Loader2,
   CheckCircle,
   CreditCard
 } from 'lucide-react'
 import { Button } from './ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Card, CardContent } from './ui/card'
 import { Badge } from './ui/badge'
 import { Input } from './ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
@@ -194,7 +190,7 @@ export function Booking() {
           toCity, 
           searchData.date, 
           searchData.travelers
-        )
+        ) as any
         
         if (response.flights && response.flights.length > 0) {
           setFlights(response.flights)
@@ -208,7 +204,7 @@ export function Booking() {
           date: searchData.date
         }
         
-        const response = await apiService.getHotelRecommendations(request)
+        const response = await apiService.getHotelRecommendations(request) as any
         
         if (response.hotels && response.hotels.length > 0) {
           setHotels(response.hotels)

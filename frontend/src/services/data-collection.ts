@@ -1,5 +1,3 @@
-import { apiService } from './api'
-
 export interface DataCollectionItem {
   id: string
   type: 'destination' | 'video' | 'food' | 'partner'
@@ -20,7 +18,6 @@ export interface CollectionStats {
 }
 
 class DataCollectionService {
-  private baseUrl = '/admin/data-collection'
 
   async getCollectionStats(): Promise<CollectionStats> {
     try {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { createElement } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Play, 
@@ -6,7 +7,6 @@ import {
   Share2, 
   Filter,
   MapPin,
-  Clock,
   Eye,
   Bookmark,
   Instagram,
@@ -15,7 +15,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { Button } from './ui/button'
-import { Card, CardContent } from './ui/card'
+import { Card } from './ui/card'
 import { Badge } from './ui/badge'
 import { Input } from './ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
@@ -268,7 +268,7 @@ export function Videos() {
                     {/* Platform Badge */}
                     <div className="absolute top-3 right-3">
                       <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${getPlatformColor(video.platform)} flex items-center justify-center`}>
-                        {React.createElement(getPlatformIcon(video.platform), { className: "w-4 h-4 text-white" })}
+                        {createElement(getPlatformIcon(video.platform), { className: "w-4 h-4 text-white" })}
                       </div>
                     </div>
 

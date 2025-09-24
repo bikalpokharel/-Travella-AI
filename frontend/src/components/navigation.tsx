@@ -35,8 +35,9 @@ const navigationItems = [
 ]
 
 export function Navigation({ currentScreen, onScreenChange, onAdminMode, isAuthenticated, onAuthClick }: NavigationProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const { user, logout } = useAuth()
+  const isAdmin = user?.role === 'admin'
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
   return (
     <>
@@ -120,7 +121,7 @@ export function Navigation({ currentScreen, onScreenChange, onAdminMode, isAuthe
                 </motion.div>
               )}
 
-              {onAdminMode && (
+              {isAdmin && onAdminMode && (
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -230,7 +231,7 @@ export function Navigation({ currentScreen, onScreenChange, onAdminMode, isAuthe
                   </Button>
                 )}
 
-                {onAdminMode && (
+                {isAdmin && onAdminMode && (
                   <Button
                     variant="outline"
                     onClick={() => {

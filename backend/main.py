@@ -270,11 +270,12 @@ async def register_user(user_data: UserRegister):
     
     # Create new user
     password_hash = hashlib.sha256(user_data.password.encode()).hexdigest()
+    user_role = "admin" if user_data.username == "admin" else "user"
     new_user = {
         "username": user_data.username,
         "email": user_data.email,
         "password_hash": password_hash,
-        "role": "user",
+        "role": user_role,
         "created_at": datetime.now().isoformat(),
         "profile": {
             "first_name": "",
@@ -531,15 +532,18 @@ async def get_dashboard_stats(current_user: str = Depends(verify_token)):
     )
 
 # Prediction endpoint
+class PredictRequest(BaseModel):
+    text: str = Field(description="Text to predict intent for")
+
 @app.post("/predict")
 async def predict(
-    request: Dict[str, Any],
+    request: PredictRequest,
     x_lang: Optional[str] = Header(None)
 ):
     global search_count
     search_count += 1
     
-    text = request.get("text", "")
+    text = request.text
     log_activity("search", f"User searched: {text}")
     
     try:
@@ -630,13 +634,16 @@ async def plan(request: Dict[str, Any]):
             ]
         }
 
+class VideoRequest(BaseModel):
+    place: str = Field(default="pokhara", description="Place to search videos for")
+
 # Videos endpoint
 @app.post("/videos")
-async def get_videos(request: Dict[str, Any]):
+async def get_videos(request: VideoRequest):
     global video_count
     video_count += 1
     
-    place = request.get("place", "pokhara").lower()
+    place = request.place.lower()
     log_activity("videos", f"User searched videos for {place}")
     
     try:

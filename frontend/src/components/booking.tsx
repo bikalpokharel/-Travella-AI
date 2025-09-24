@@ -28,6 +28,24 @@ import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
 import type { BookingCreateRequest, BookingCreateResponse } from '@/types'
 
+// Nepal cities from cities_nepal.txt
+const NEPAL_CITIES = [
+  'Kathmandu (KTM)',
+  'Lalitpur (LTP)', 
+  'Patan (PTN)',
+  'Bhaktapur (BHK)',
+  'Pokhara (PKR)',
+  'Chitwan (CHT)',
+  'Lumbini (LUM)',
+  'Butwal (BTW)',
+  'Hetauda (HTD)',
+  'Biratnagar (BIR)',
+  'Birgunj (BRG)',
+  'Bharatpur (BHP)',
+  'Janakpur (JNK)',
+  'Nepalgunj (NPG)'
+]
+
 export function Booking() {
   const [activeTab, setActiveTab] = useState('flights')
   const [searchData, setSearchData] = useState({
@@ -254,21 +272,29 @@ export function Booking() {
             <div className="grid md:grid-cols-4 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">From</label>
-                <Input 
-                  placeholder="Kathmandu (KTM)" 
-                  value={searchData.from}
-                  onChange={(e) => setSearchData({...searchData, from: e.target.value})}
-                  className="h-10" 
-                />
+                <Select value={searchData.from} onValueChange={(value) => setSearchData({...searchData, from: value})}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select departure city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NEPAL_CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">To</label>
-                <Input 
-                  placeholder="Pokhara (PKR)" 
-                  value={searchData.to}
-                  onChange={(e) => setSearchData({...searchData, to: e.target.value})}
-                  className="h-10" 
-                />
+                <Select value={searchData.to} onValueChange={(value) => setSearchData({...searchData, to: value})}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select destination city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NEPAL_CITIES.map((city) => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Date</label>

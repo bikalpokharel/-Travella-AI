@@ -87,6 +87,9 @@ users_db = {
 # Activity log for tracking user actions
 activity_log = []
 
+# Bookings storage (in production, use a proper database)
+bookings = {}
+
 security = HTTPBearer()
 
 class AdminLogin(BaseModel):
@@ -454,9 +457,7 @@ async def create_booking(
     }
     
     # Store booking (in production, use a proper database)
-    if "bookings" not in globals():
-        globals()["bookings"] = {}
-    globals()["bookings"][booking_id] = booking
+    bookings[booking_id] = booking
     
     log_activity("booking_created", f"User {current_user} created {booking_data.type} booking to {booking_data.destination}")
     
@@ -464,11 +465,8 @@ async def create_booking(
 
 @app.get("/bookings")
 async def get_user_bookings(current_user: str = Depends(verify_token)):
-    if "bookings" not in globals():
-        return []
-    
     user_bookings = [
-        booking for booking in globals()["bookings"].values()
+        booking for booking in bookings.values()
         if booking["user"] == current_user
     ]
     

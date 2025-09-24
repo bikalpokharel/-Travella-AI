@@ -20,13 +20,26 @@ import {
   Wifi,
   AlertCircle,
   CheckCircle,
-  RefreshCw
+  RefreshCw,
+  Plus,
+  Edit,
+  Trash2,
+  Save,
+  X,
+  Upload,
+  FileText,
+  Image,
+  Globe
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { toast } from 'sonner'
 import { apiService } from '@/services/api'
+import { DataCollectionPanel } from './data-collection-panel'
 import type { DashboardStats } from '@/types'
 
 interface AdminDashboardProps {
@@ -39,16 +52,26 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
+  const [activeTab, setActiveTab] = useState('overview')
+  const [contentData, setContentData] = useState({
+    destinations: [],
+    videos: [],
+    foods: [],
+    partners: []
+  })
+  const [editingItem, setEditingItem] = useState<any>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
   useEffect(() => {
     verifyAdmin()
     loadDashboardStats()
+    loadContentData()
     
     // Auto-refresh every 30 seconds
     const interval = setInterval(() => {
       loadDashboardStats()
     }, 30000)
-    
+
     return () => clearInterval(interval)
   }, [token])
 
@@ -73,6 +96,64 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
       toast.error('Failed to load dashboard data')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadContentData = async () => {
+    try {
+      // In a real app, these would be API calls to get content data
+      const mockData = {
+        destinations: [
+          { id: 1, name: 'Pokhara', description: 'Beautiful lakeside city', status: 'active' },
+          { id: 2, name: 'Kathmandu', description: 'Capital city with rich culture', status: 'active' },
+          { id: 3, name: 'Chitwan', description: 'National park and wildlife', status: 'active' }
+        ],
+        videos: [
+          { id: 1, title: 'Pokhara Travel Guide', url: 'https://youtube.com/watch?v=123', views: 1500, status: 'active' },
+          { id: 2, title: 'Kathmandu Temples', url: 'https://youtube.com/watch?v=456', views: 2300, status: 'active' }
+        ],
+        foods: [
+          { id: 1, name: 'Momo', description: 'Traditional Nepali dumplings', rating: 4.8, status: 'active' },
+          { id: 2, name: 'Dal Bhat', description: 'Traditional rice and lentils', rating: 4.5, status: 'active' }
+        ],
+        partners: [
+          { id: 1, name: 'Nepal Airlines', type: 'airline', status: 'active' },
+          { id: 2, name: 'Hotel Annapurna', type: 'hotel', status: 'active' }
+        ]
+      }
+      setContentData(mockData)
+    } catch (error) {
+      console.error('Error loading content data:', error)
+      toast.error('Failed to load content data')
+    }
+  }
+
+  const handleEditItem = (item: any, type: string) => {
+    setEditingItem({ ...item, type })
+    setIsEditing(true)
+  }
+
+  const handleSaveItem = async () => {
+    try {
+      // In a real app, this would be an API call to save the item
+      toast.success(`${editingItem.type} updated successfully`)
+      setIsEditing(false)
+      setEditingItem(null)
+      loadContentData()
+    } catch (error) {
+      console.error('Error saving item:', error)
+      toast.error('Failed to save item')
+    }
+  }
+
+  const handleDeleteItem = async (id: number, type: string) => {
+    try {
+      // In a real app, this would be an API call to delete the item
+      toast.success(`${type} deleted successfully`)
+      loadContentData()
+    } catch (error) {
+      console.error('Error deleting item:', error)
+      toast.error('Failed to delete item')
     }
   }
 
@@ -211,7 +292,18 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
           </div>
         </motion.div>
 
-        {/* Stats Grid */}
+        {/* Admin Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="destinations">Destinations</TabsTrigger>
+            <TabsTrigger value="videos">Videos</TabsTrigger>
+            <TabsTrigger value="partners">Partners</TabsTrigger>
+            <TabsTrigger value="data-collection">Data Collection</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview">
+            {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -473,6 +565,117 @@ export function AdminDashboard({ token, onLogout }: AdminDashboardProps) {
             </Card>
           </div>
         </motion.div>
+          </TabsContent>
+
+          <TabsContent value="destinations">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Manage Destinations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {contentData.destinations.map((destination: any) => (
+                    <div key={destination.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{destination.name}</h3>
+                        <p className="text-sm text-muted-foreground">{destination.description}</p>
+                        <Badge variant={destination.status === 'active' ? 'default' : 'secondary'}>
+                          {destination.status}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEditItem(destination, 'destination')}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDeleteItem(destination.id, 'destination')}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="videos">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Video className="w-5 h-5" />
+                  Manage Videos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {contentData.videos.map((video: any) => (
+                    <div key={video.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{video.title}</h3>
+                        <p className="text-sm text-muted-foreground">{video.url}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={video.status === 'active' ? 'default' : 'secondary'}>
+                            {video.status}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">{video.views} views</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEditItem(video, 'video')}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDeleteItem(video.id, 'video')}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="partners">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="w-5 h-5" />
+                  Manage Partners
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {contentData.partners.map((partner: any) => (
+                    <div key={partner.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div>
+                        <h3 className="font-semibold">{partner.name}</h3>
+                        <p className="text-sm text-muted-foreground">Type: {partner.type}</p>
+                        <Badge variant={partner.status === 'active' ? 'default' : 'secondary'}>
+                          {partner.status}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => handleEditItem(partner, 'partner')}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleDeleteItem(partner.id, 'partner')}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="data-collection">
+            <DataCollectionPanel />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

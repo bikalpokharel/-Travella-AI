@@ -23,7 +23,9 @@ import {
   Video,
   Clock,
   TrendingUp,
-  Activity
+  Activity,
+  Save,
+  X
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -34,8 +36,10 @@ import { Separator } from './ui/separator'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { apiService } from '@/services/api'
+import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import type { UserProfile } from '@/types'
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState('profile')
@@ -47,8 +51,39 @@ export function Profile() {
     totalBookings: 0
   })
   const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [profileData, setProfileData] = useState<UserProfile>({
+    first_name: '',
+    last_name: '',
+    phone: '',
+    preferences: {
+      travel_style: 'balanced',
+      budget_range: 'medium',
+      interests: []
+    }
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const { user, updateProfile, logout } = useAuth()
 
   useEffect(() => {
+    if (user?.profile) {
+      setProfileData(user.profile)
+    }
+  }, [user])
+
+  const handleSaveProfile = async () => {
+    setIsLoading(true)
+    try {
+      const success = await updateProfile(profileData)
+      if (success) {
+        setEditMode(false)
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
     // Simulate loading user stats (in a real app, this would come from the backend)
     const mockStats = {
       totalSearches: Math.floor(Math.random() * 50) + 10,
@@ -226,33 +261,87 @@ export function Profile() {
                     <div className="flex-1">
                       {editMode ? (
                         <div className="space-y-3">
-                          <Input defaultValue="John Smith" />
-                          <Input defaultValue="john.smith@email.com" />
-                          <Input defaultValue="Travel enthusiast exploring the world" />
+                          <div>
+                            <Label htmlFor="first_name">First Name</Label>
+                            <Input 
+                              id="first_name"
+                              value={profileData.first_name}
+                              onChange={(e) => setProfileData({...profileData, first_name: e.target.value})}
+                              placeholder="Enter first name"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="last_name">Last Name</Label>
+                            <Input 
+                              id="last_name"
+                              value={profileData.last_name}
+                              onChange={(e) => setProfileData({...profileData, last_name: e.target.value})}
+                              placeholder="Enter last name"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="phone">Phone</Label>
+                            <Input 
+                              id="phone"
+                              value={profileData.phone}
+                              onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                              placeholder="Enter phone number"
+                            />
+                          </div>
                         </div>
                       ) : (
                         <div>
-                          <h1 className="text-2xl font-bold">John Smith</h1>
-                          <p className="text-muted-foreground">john.smith@email.com</p>
-                          <p className="text-sm mt-2">Travel enthusiast exploring the world 🌍</p>
+                          <h1 className="text-2xl font-bold">
+                            {profileData.first_name && profileData.last_name 
+                              ? `${profileData.first_name} ${profileData.last_name}`
+                              : user?.username || 'User'
+                            }
+                          </h1>
+                          <p className="text-muted-foreground">{user?.email}</p>
+                          {profileData.phone && (
+                            <p className="text-sm mt-2">📞 {profileData.phone}</p>
+                          )}
                           <div className="flex items-center gap-2 mt-3">
                             <Badge variant="secondary" className="bg-gradient-to-r from-blue-100 to-teal-100 text-blue-800">
-                              Explorer Level
+                              {profileData.preferences.travel_style} Traveler
                             </Badge>
-                            <Badge variant="outline">Since 2023</Badge>
+                            <Badge variant="outline">{profileData.preferences.budget_range} Budget</Badge>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <Button
-                      variant={editMode ? "default" : "outline"}
-                      onClick={() => setEditMode(!editMode)}
-                      className="flex items-center gap-2"
-                    >
-                      <Edit className="w-4 h-4" />
-                      {editMode ? 'Save' : 'Edit'}
-                    </Button>
+                    <div className="flex gap-2">
+                      {editMode ? (
+                        <>
+                          <Button
+                            variant="outline"
+                            onClick={() => setEditMode(false)}
+                            className="flex items-center gap-2"
+                          >
+                            <X className="w-4 h-4" />
+                            Cancel
+                          </Button>
+                          <Button
+                            onClick={handleSaveProfile}
+                            disabled={isLoading}
+                            className="flex items-center gap-2"
+                          >
+                            <Save className="w-4 h-4" />
+                            {isLoading ? 'Saving...' : 'Save'}
+                          </Button>
+                        </>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          onClick={() => setEditMode(true)}
+                          className="flex items-center gap-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                          Edit Profile
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

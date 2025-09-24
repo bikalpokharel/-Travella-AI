@@ -9,15 +9,20 @@ import {
   User,
   Menu,
   X,
-  Shield
+  Shield,
+  LogIn,
+  LogOut
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface NavigationProps {
   currentScreen: string
   onScreenChange: (screen: string) => void
   onAdminMode?: () => void
+  isAuthenticated?: boolean
+  onAuthClick?: () => void
 }
 
 const navigationItems = [
@@ -29,8 +34,9 @@ const navigationItems = [
   { id: 'profile', label: 'Profile', icon: User },
 ]
 
-export function Navigation({ currentScreen, onScreenChange, onAdminMode }: NavigationProps) {
+export function Navigation({ currentScreen, onScreenChange, onAdminMode, isAuthenticated, onAuthClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+  const { user, logout } = useAuth()
 
   return (
     <>
@@ -75,11 +81,50 @@ export function Navigation({ currentScreen, onScreenChange, onAdminMode }: Navig
                   </Button>
                 </motion.div>
               ))}
-              {onAdminMode && (
+              {/* Authentication Button */}
+              {isAuthenticated ? (
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: navigationItems.length * 0.1 }}
+                  className="flex items-center gap-2"
+                >
+                  <span className="text-sm text-muted-foreground hidden lg:inline">
+                    Welcome, {user?.username}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={logout}
+                    className="flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span className="hidden lg:inline">Logout</span>
+                  </Button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: navigationItems.length * 0.1 }}
+                >
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onAuthClick}
+                    className="flex items-center gap-2"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    <span className="hidden lg:inline">Sign In</span>
+                  </Button>
+                </motion.div>
+              )}
+
+              {onAdminMode && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (navigationItems.length + 1) * 0.1 }}
                 >
                   <Button
                     variant="outline"
@@ -157,6 +202,34 @@ export function Navigation({ currentScreen, onScreenChange, onAdminMode }: Navig
                     {item.label}
                   </Button>
                 ))}
+                
+                {/* Mobile Auth Button */}
+                {isAuthenticated ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      logout()
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="flex items-center gap-2 justify-start"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      onAuthClick?.()
+                      setIsMobileMenuOpen(false)
+                    }}
+                    className="flex items-center gap-2 justify-start"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Sign In
+                  </Button>
+                )}
+
                 {onAdminMode && (
                   <Button
                     variant="outline"

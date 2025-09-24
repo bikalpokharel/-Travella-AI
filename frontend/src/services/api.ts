@@ -243,6 +243,76 @@ class ApiService {
       },
     })
   }
+
+  // User authentication methods
+  async userLogin(credentials: { username: string; password: string }): Promise<UserLoginResponse> {
+    return this.request('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+
+  async userRegister(userData: { username: string; email: string; password: string }): Promise<UserLoginResponse> {
+    return this.request('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+
+  async verifyUser(token: string): Promise<UserVerifyResponse> {
+    return this.request('/auth/verify', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+  }
+
+  async getUserProfile(token: string): Promise<UserProfileResponse> {
+    return this.request('/user/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+  }
+
+  async updateUserProfile(token: string, profileData: Partial<UserProfile>): Promise<{ message: string; profile: UserProfile }> {
+    return this.request('/user/profile', {
+      method: 'PUT',
+      body: JSON.stringify(profileData),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+
+  async createBooking(token: string, bookingData: BookingRequest): Promise<BookingResponse> {
+    return this.request('/bookings', {
+      method: 'POST',
+      body: JSON.stringify(bookingData),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+  }
+
+  async getUserBookings(token: string): Promise<BookingResponse[]> {
+    return this.request('/bookings', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+  }
 }
 
 export const apiService = new ApiService()

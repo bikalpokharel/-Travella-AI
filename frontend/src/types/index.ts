@@ -177,3 +177,74 @@ export interface DashboardStats {
     prediction_model: string
   }
 }
+
+// User authentication types
+export interface UserLoginRequest {
+  username: string
+  password: string
+}
+
+export interface UserRegisterRequest {
+  username: string
+  email: string
+  password: string
+}
+
+export interface UserLoginResponse {
+  access_token: string
+  token_type: string
+  expires_in: number
+  user: {
+    username: string
+    email: string
+    role: string
+    profile: UserProfile
+  }
+}
+
+export interface UserVerifyResponse {
+  message: string
+  user: {
+    username: string
+    email: string
+    role: string
+    profile: UserProfile
+  }
+}
+
+export interface UserProfile {
+  first_name: string
+  last_name: string
+  phone: string
+  preferences: {
+    travel_style: string
+    budget_range: string
+    interests: string[]
+  }
+}
+
+export interface UserProfileResponse {
+  username: string
+  email: string
+  profile: UserProfile
+}
+
+// Enhanced booking types
+export interface BookingCreateRequest {
+  type: 'flight' | 'hotel'
+  destination: string
+  check_in: string
+  check_out?: string
+  travelers: number
+  budget?: number
+}
+
+export interface BookingCreateResponse {
+  id: string
+  type: string
+  destination: string
+  status: string
+  price: number
+  details: Record<string, any>
+  created_at: string
+}

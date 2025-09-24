@@ -53,16 +53,39 @@ users_db = {
         "email": "user1@example.com",
         "password_hash": hashlib.sha256("password123".encode()).hexdigest(),
         "role": "user",
-        "created_at": "2024-01-01T00:00:00Z"
+        "created_at": "2024-01-01T00:00:00Z",
+        "profile": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "phone": "+977-1234567890",
+            "preferences": {
+                "travel_style": "adventure",
+                "budget_range": "medium",
+                "interests": ["mountains", "culture", "food"]
+            }
+        }
     },
     "demo": {
         "username": "demo",
         "email": "demo@example.com", 
         "password_hash": hashlib.sha256("demo123".encode()).hexdigest(),
         "role": "user",
-        "created_at": "2024-01-01T00:00:00Z"
+        "created_at": "2024-01-01T00:00:00Z",
+        "profile": {
+            "first_name": "Demo",
+            "last_name": "User",
+            "phone": "+977-9876543210",
+            "preferences": {
+                "travel_style": "relaxed",
+                "budget_range": "low",
+                "interests": ["beaches", "nature", "photography"]
+            }
+        }
     }
 }
+
+# Activity log for tracking user actions
+activity_log = []
 
 security = HTTPBearer()
 
@@ -89,6 +112,35 @@ class UserResponse(BaseModel):
     token_type: str
     expires_in: int
     user: dict
+
+class UserProfile(BaseModel):
+    first_name: str
+    last_name: str
+    phone: str
+    preferences: dict
+
+class UserProfileUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    phone: Optional[str] = None
+    preferences: Optional[dict] = None
+
+class BookingRequest(BaseModel):
+    type: str  # "flight" or "hotel"
+    destination: str
+    check_in: str
+    check_out: Optional[str] = None
+    travelers: int = 1
+    budget: Optional[float] = None
+
+class BookingResponse(BaseModel):
+    id: str
+    type: str
+    destination: str
+    status: str
+    price: float
+    details: dict
+    created_at: str
 
 class DashboardStats(BaseModel):
     total_searches: int
@@ -220,7 +272,17 @@ async def register_user(user_data: UserRegister):
         "email": user_data.email,
         "password_hash": password_hash,
         "role": "user",
-        "created_at": datetime.now().isoformat()
+        "created_at": datetime.now().isoformat(),
+        "profile": {
+            "first_name": "",
+            "last_name": "",
+            "phone": "",
+            "preferences": {
+                "travel_style": "balanced",
+                "budget_range": "medium",
+                "interests": []
+            }
+        }
     }
     users_db[user_data.username] = new_user
     
@@ -240,7 +302,8 @@ async def register_user(user_data: UserRegister):
         "user": {
             "username": new_user["username"],
             "email": new_user["email"],
-            "role": new_user["role"]
+            "role": new_user["role"],
+            "profile": new_user["profile"]
         }
     }
 
@@ -277,7 +340,8 @@ async def login_user(user_data: UserLogin):
         "user": {
             "username": user["username"],
             "email": user["email"],
-            "role": user["role"]
+            "role": user["role"],
+            "profile": user.get("profile", {})
         }
     }
 
@@ -295,9 +359,120 @@ async def verify_user(current_user: str = Depends(verify_token)):
         "user": {
             "username": user["username"],
             "email": user["email"],
-            "role": user["role"]
+            "role": user["role"],
+            "profile": user.get("profile", {})
         }
     }
+
+# User profile management endpoints
+@app.get("/user/profile")
+async def get_user_profile(current_user: str = Depends(verify_token)):
+    if current_user not in users_db:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    user = users_db[current_user]
+    return {
+        "username": user["username"],
+        "email": user["email"],
+        "profile": user.get("profile", {})
+    }
+
+@app.put("/user/profile")
+async def update_user_profile(
+    profile_data: UserProfileUpdate,
+    current_user: str = Depends(verify_token)
+):
+    if current_user not in users_db:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    user = users_db[current_user]
+    if "profile" not in user:
+        user["profile"] = {}
+    
+    # Update profile fields
+    if profile_data.first_name is not None:
+        user["profile"]["first_name"] = profile_data.first_name
+    if profile_data.last_name is not None:
+        user["profile"]["last_name"] = profile_data.last_name
+    if profile_data.phone is not None:
+        user["profile"]["phone"] = profile_data.phone
+    if profile_data.preferences is not None:
+        user["profile"]["preferences"] = profile_data.preferences
+    
+    log_activity("profile_update", f"User {current_user} updated profile")
+    
+    return {
+        "message": "Profile updated successfully",
+        "profile": user["profile"]
+    }
+
+# Booking endpoints
+@app.post("/bookings", response_model=BookingResponse)
+async def create_booking(
+    booking_data: BookingRequest,
+    current_user: str = Depends(verify_token)
+):
+    import uuid
+    
+    booking_id = str(uuid.uuid4())
+    
+    # Simulate booking creation with real data
+    if booking_data.type == "flight":
+        booking_details = {
+            "airline": "Nepal Airlines",
+            "flight_number": f"RA{booking_data.travelers}{hash(booking_data.destination) % 1000:03d}",
+            "departure_time": "08:30",
+            "arrival_time": "09:15",
+            "duration": "45m",
+            "class": "Economy"
+        }
+        price = 89.0 * booking_data.travelers
+    else:  # hotel
+        booking_details = {
+            "hotel_name": f"Hotel {booking_data.destination}",
+            "room_type": "Standard Room",
+            "amenities": ["WiFi", "Breakfast", "Parking"],
+            "rating": 4.2
+        }
+        price = 45.0 * booking_data.travelers
+    
+    booking = {
+        "id": booking_id,
+        "type": booking_data.type,
+        "destination": booking_data.destination,
+        "status": "confirmed",
+        "price": price,
+        "details": booking_details,
+        "created_at": datetime.now().isoformat(),
+        "user": current_user
+    }
+    
+    # Store booking (in production, use a proper database)
+    if "bookings" not in globals():
+        globals()["bookings"] = {}
+    globals()["bookings"][booking_id] = booking
+    
+    log_activity("booking_created", f"User {current_user} created {booking_data.type} booking to {booking_data.destination}")
+    
+    return booking
+
+@app.get("/bookings")
+async def get_user_bookings(current_user: str = Depends(verify_token)):
+    if "bookings" not in globals():
+        return []
+    
+    user_bookings = [
+        booking for booking in globals()["bookings"].values()
+        if booking["user"] == current_user
+    ]
+    
+    return user_bookings
 
 # New admin dashboard endpoint
 @app.get("/admin/dashboard", response_model=DashboardStats)

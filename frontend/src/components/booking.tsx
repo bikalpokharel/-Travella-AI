@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Plane, 
@@ -16,7 +16,9 @@ import {
   Filter,
   Heart,
   Share2,
-  Loader2
+  Loader2,
+  CheckCircle,
+  CreditCard
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -26,7 +28,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import { Separator } from './ui/separator'
 import { apiService } from '@/services/api'
+import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
+import type { BookingCreateRequest, BookingCreateResponse } from '@/types'
 
 export function Booking() {
   const [activeTab, setActiveTab] = useState('flights')
@@ -39,6 +43,53 @@ export function Booking() {
   const [flights, setFlights] = useState<any[]>([])
   const [hotels, setHotels] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [userBookings, setUserBookings] = useState<BookingCreateResponse[]>([])
+  const [showBookings, setShowBookings] = useState(false)
+  const { isAuthenticated, token } = useAuth()
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      loadUserBookings()
+    }
+  }, [isAuthenticated, token])
+
+  const loadUserBookings = async () => {
+    if (!token) return
+    
+    try {
+      const bookings = await apiService.getUserBookings(token)
+      setUserBookings(bookings)
+    } catch (error) {
+      console.error('Failed to load user bookings:', error)
+    }
+  }
+
+  const handleBooking = async (item: any, type: 'flight' | 'hotel') => {
+    if (!isAuthenticated || !token) {
+      toast.error('Please sign in to make a booking')
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const bookingData: BookingCreateRequest = {
+        type,
+        destination: searchData.to,
+        check_in: searchData.date || new Date().toISOString().split('T')[0],
+        travelers: searchData.travelers,
+        budget: item.price
+      }
+
+      const booking = await apiService.createBooking(token, bookingData)
+      setUserBookings(prev => [booking, ...prev])
+      toast.success(`${type === 'flight' ? 'Flight' : 'Hotel'} booking confirmed!`)
+    } catch (error) {
+      console.error('Booking failed:', error)
+      toast.error('Failed to create booking. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const defaultFlights = [
     {
@@ -253,6 +304,68 @@ export function Booking() {
       {/* Content */}
       <div className="p-4 md:p-6">
         <div className="max-w-6xl mx-auto">
+          {/* User Bookings Section */}
+          {isAuthenticated && userBookings.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                  My Bookings
+                </h2>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowBookings(!showBookings)}
+                >
+                  {showBookings ? 'Hide' : 'Show'} Bookings
+                </Button>
+              </div>
+              
+              {showBookings && (
+                <div className="grid gap-4">
+                  {userBookings.map((booking) => (
+                    <Card key={booking.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-teal-500 rounded-lg flex items-center justify-center">
+                              {booking.type === 'flight' ? (
+                                <Plane className="w-6 h-6 text-white" />
+                              ) : (
+                                <Building className="w-6 h-6 text-white" />
+                              )}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">
+                                {booking.type === 'flight' ? 'Flight' : 'Hotel'} to {booking.destination}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                Booked on {new Date(booking.created_at).toLocaleDateString()}
+                              </p>
+                              <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
+                                {booking.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xl font-bold text-primary">${booking.price}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {booking.type === 'flight' ? 'per person' : 'per night'}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          )}
+
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full md:w-auto grid-cols-2 md:grid-cols-4 mb-6">
               <TabsTrigger value="flights" className="flex items-center gap-2">
@@ -324,8 +437,22 @@ export function Booking() {
                           <div className="text-right">
                             <p className="text-2xl font-bold text-primary">${flight.price}</p>
                             <p className="text-xs text-muted-foreground mb-2">via {flight.partner}</p>
-                            <Button className="bg-gradient-to-r from-blue-600 to-teal-500">
-                              Book Now
+                            <Button 
+                              className="bg-gradient-to-r from-blue-600 to-teal-500"
+                              onClick={() => handleBooking(flight, 'flight')}
+                              disabled={isLoading}
+                            >
+                              {isLoading ? (
+                                <>
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Booking...
+                                </>
+                              ) : (
+                                <>
+                                  <CreditCard className="mr-2 h-4 w-4" />
+                                  Book Now
+                                </>
+                              )}
                             </Button>
                           </div>
                         </div>
@@ -429,8 +556,22 @@ export function Booking() {
                                 <p className="text-sm text-muted-foreground">per night</p>
                               </div>
                               <p className="text-xs text-muted-foreground mb-3">via {hotel.partner}</p>
-                              <Button className="w-full bg-gradient-to-r from-blue-600 to-teal-500">
-                                Book Now
+                              <Button 
+                                className="w-full bg-gradient-to-r from-blue-600 to-teal-500"
+                                onClick={() => handleBooking(hotel, 'hotel')}
+                                disabled={isLoading}
+                              >
+                                {isLoading ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Booking...
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCard className="mr-2 h-4 w-4" />
+                                    Book Now
+                                  </>
+                                )}
                               </Button>
                             </div>
                           </div>
